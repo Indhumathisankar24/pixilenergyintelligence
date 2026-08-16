@@ -1,0 +1,257 @@
+@import 'tailwindcss';
+
+/* ============================================================================
+   PIXIL ENERGY INTELLIGENCE PLATFORM — Design tokens
+   ----------------------------------------------------------------------------
+   Dark-first "grid control centre" theme. Surfaces are deep navy/charcoal,
+   type is light, and a single electric-blue accent carries interaction.
+
+   The data-visualisation palette below was validated with the dataviz
+   validator against the chart surface (#111725):
+     · categorical (region) slots  — all checks PASS on the adjacent pairlist
+     · actual (blue) vs expected (magenta) — all checks PASS, all-pairs
+     · scenario ordinal blue ramp  — all checks PASS
+     · status palette — clears the 3:1 contrast gate; red/green are inherently
+       confusable under CVD, so severity is NEVER encoded by colour alone.
+       Every severity marker ships an icon + text label (see SeverityBadge).
+   ========================================================================== */
+
+@theme {
+  /* ---- Type ---- */
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
+
+  /* ---- Surfaces & chrome ---- */
+  --color-plane: #0a0e17; /* page plane */
+  --color-surface: #111725; /* chart / card surface */
+  --color-surface-2: #161d2e; /* raised surface, table stripe */
+  --color-surface-3: #1c2436; /* hover, input */
+  --color-hairline: #212b40; /* hairline border */
+  --color-hairline-strong: #2e3a52; /* emphasised border */
+
+  /* ---- Ink ---- */
+  --color-ink: #e8eef8; /* primary text */
+  --color-ink-secondary: #9aa8c0; /* secondary text */
+  --color-ink-muted: #66738c; /* axis labels, meta */
+
+  /* ---- Brand accent (UI chrome, focus, primary actions) ---- */
+  --color-accent-50: #eaf2ff;
+  --color-accent-200: #9ec5f4;
+  --color-accent-300: #6da7ec;
+  --color-accent-400: #4c9aff;
+  --color-accent-500: #2e7bff;
+  --color-accent-600: #1c5cab;
+  --color-accent-700: #143f77;
+
+  /* ---- Data series (validated) ---- */
+  --color-series-actual: #3987e5; /* observed consumption */
+  --color-series-actual-soft: #6da7ec; /* forecast continuation of actual */
+  --color-series-expected: #d55181; /* model-expected baseline */
+  --color-series-1: #3987e5; /* region: North */
+  --color-series-2: #d95926; /* region: South */
+  --color-series-3: #199e70; /* region: East */
+  --color-series-4: #c98500; /* region: West */
+  --color-series-5: #d55181; /* region: Central */
+
+  /* ---- Ordinal blue ramp (long-term scenarios) ---- */
+  --color-ramp-low: #1c5cab;
+  --color-ramp-base: #3987e5;
+  --color-ramp-high: #86b6ef;
+
+  /* ---- Status / severity (reserved — never reused as a series hue) ---- */
+  --color-normal: #2fae4a;
+  --color-warning: #f5b514;
+  --color-high: #f0883e;
+  --color-critical: #e5484d;
+
+  /* ---- Chart chrome ---- */
+  --color-grid: #1e2739;
+  --color-axis: #2b3752;
+
+  /* ---- Radii ---- */
+  --radius-card: 0.625rem;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-hairline);
+  }
+
+  html {
+    color-scheme: dark;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--color-plane);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Numbers that live in columns must align vertically. Standalone display
+     figures keep proportional digits (see .figure). */
+  th,
+  td,
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .figure {
+    font-variant-numeric: proportional-nums;
+    letter-spacing: -0.02em;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent-500);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-accent-500) 35%, transparent);
+  }
+
+  /* Scrollbars — recessive, matching the chrome */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-hairline-strong);
+    border-radius: 99px;
+    border: 2px solid var(--color-plane);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3d4a66;
+  }
+}
+
+@layer components {
+  /* Card — the single container primitive the whole app is built from. */
+  .pixil-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-card);
+  }
+
+  /* Section eyebrow label */
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  /* Recharts overrides — keep the chrome recessive */
+  .recharts-cartesian-axis-tick-value {
+    font-size: 11px;
+    fill: var(--color-ink-muted);
+  }
+  .recharts-surface {
+    overflow: visible;
+  }
+  .recharts-default-legend {
+    display: none;
+  }
+  .recharts-tooltip-wrapper {
+    outline: none;
+  }
+  .recharts-brush-slide {
+    fill: var(--color-accent-500);
+    fill-opacity: 0.12;
+  }
+  .recharts-brush-traveller rect {
+    fill: var(--color-accent-500);
+    stroke: none;
+  }
+}
+
+@layer utilities {
+  /* Diagonal texture — the backup identity channel for forced-colors/print,
+     never decorative and never on by default. */
+  .texture-45 {
+    background-image: repeating-linear-gradient(
+      45deg,
+      currentColor 0 1px,
+      transparent 1px 5px
+    );
+  }
+
+  .animate-pulse-dot {
+    animation: pixil-pulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pixil-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  .animate-rise {
+    animation: pixil-rise 0.28s ease-out both;
+  }
+
+  @keyframes pixil-rise {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .animate-slide-in {
+    animation: pixil-slide-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes pixil-slide-in {
+    from {
+      transform: translateX(16px);
+      opacity: 0;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--color-surface-2) 0%,
+      var(--color-surface-3) 50%,
+      var(--color-surface-2) 100%
+    );
+    background-size: 200% 100%;
+    animation: pixil-shimmer 1.4s linear infinite;
+  }
+
+  @keyframes pixil-shimmer {
+    to {
+      background-position: -200% 0;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
